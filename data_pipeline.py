@@ -3,9 +3,9 @@ import pandas as pd
 def add_percent_change(df: pd.DataFrame, col: str, days: int) -> pd.DataFrame:
   # days = -1 means future day
   if days < 0:
-    df[f"{col}_{abs(days)}_Day_Future_Percent_Change"] = (df[col].shift(days) - df[col]) / df[col]
+    df[f"{col} {abs(days)} Day Future Percent Change"] = (df[col].shift(days) - df[col]) / df[col]
   else:
-    df[f"{col}_{days}_Day_Past_Percent_Change"] = (df[col] - df[col].shift(days)) / df[col].shift(days)
+    df[f"{col} {days} Day Past Percent Change"] = (df[col] - df[col].shift(days)) / df[col].shift(days)
   return df
 
 def main():
@@ -36,7 +36,6 @@ def main():
 
   # output to csv
   df.to_csv("processed_data/eth_level1_processed_data.csv")
-  return 0
 
 if __name__ == '__main__':
   main()
