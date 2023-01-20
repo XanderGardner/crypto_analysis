@@ -8,6 +8,14 @@ def add_percent_change(df: pd.DataFrame, col: str, days: int) -> pd.DataFrame:
     df[f"{col} {days} Day Past Percent Change"] = (df[col] - df[col].shift(days)) / df[col].shift(days)
   return df
 
+def add_percent_change_min(df: pd.DataFrame, col: str, mins: int) -> pd.DataFrame:
+  # days = -1 means future min
+  if mins < 0:
+    df[f"{col}_{abs(mins)}_min_future_percent_change"] = (df[col].shift(mins) - df[col]) / df[col]
+  else:
+    df[f"{col}_{mins}_min_past_percent_change"] = (df[col] - df[col].shift(mins)) / df[col].shift(mins)
+  return df
+
 def process_eth_level1():
   # 'Date', 'Price', 'Market Cap', 'Volume', 'Active Addresses',
   # 'Daily Transactions', 'Twitter Followers', 'Weekly Commits Core',
@@ -41,12 +49,20 @@ def process_btc_level2():
   # 'time', 'open', 'high', 'low', 'close', 'volume',
   # 'num_trades', 'bid_price0', 'bid_quantity0' ... 'ask_price99', 'ask_quantity99'
   df = pd.read_csv("raw_data/btc_level2_raw_data.csv")
-  out = df[['time', 'close', 'volume']].copy()
+  out = df[['time', f"close", f"volume"]].copy()
+
+  # add percent changes
+  out = add_percent_change_min(out, 'close', -15)
+  out = add_percent_change_min(out, 'close', -10)
+  out = add_percent_change_min(out, 'close', -5)
+  out = add_percent_change_min(out, 'volume', 1)
+  
 
   # calculate friction up and down at each time
-  friction_percent = 0.005
+  friction_percent = 0.01
   friction_up = []
   friction_down = []
+  friction_difference = []
   hit_range = 0
   for i in df.index:
     close = df.loc[i, "close"]
@@ -71,9 +87,12 @@ def process_btc_level2():
         hit_range += 1
     friction_down.append(down)
 
+    friction_difference.append(friction_up[-1] - friction_down[-1])
+
   print(f"hit range: {hit_range}")
   out['friction_up'] = friction_up
   out['friction_down'] = friction_down
+  out['friction_difference'] = friction_difference
   
   # output to csv
   out.to_csv("processed_data/btc_level2_processed_data.csv")
