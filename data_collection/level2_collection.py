@@ -5,6 +5,9 @@ import datetime as dt
 import time
 
 def main():
+  # global vars
+  depth = 1000 # number of bids and asks to collect
+
   # client configuration - keys not needed here since using free api
   api_key = 'API HERE'
   api_secret = 'SECRET API HERE'
@@ -17,9 +20,9 @@ def main():
   except FileNotFoundError: 
     print("creating new data file")
     cols = ['time', 'open','high','low','close','volume','num_trades']
-    for i in range(100):
+    for i in range(depth):
       cols += [f"bid_price{i}", f"bid_quantity{i}"]
-    for i in range(100):
+    for i in range(depth):
       cols += [f"ask_price{i}", f"ask_quantity{i}"]
     df = pd.DataFrame(columns=cols)
 
@@ -27,7 +30,7 @@ def main():
   while True:
     # get data from client
     klines = client.get_historical_klines("BTCUSDT", "1m", limit=1)[0]
-    l2_data = client.get_order_book(symbol="BTCUSDT", limit=100)
+    l2_data = client.get_order_book(symbol="BTCUSDT", limit=depth)
 
     # add level 3 data
     next_row = [dt.datetime.fromtimestamp(klines[0]/1000.0)]
@@ -35,10 +38,18 @@ def main():
     next_row += [klines[1], klines[2], klines[3], klines[4], klines[5], klines[8]]
 
     # add level 2 data
-    for price, quantity in l2_data['bids']:
-      next_row += [price, quantity] # bid prices get smaller for greater i
-    for price, quantity in l2_data['asks']:
-      next_row += [price, quantity] # ask prices get greater for greater i
+    for i in range(depth):
+      if i < len(l2_data['bids']):
+        price, quantity = l2_data['bids'][i]
+        next_row += [price, quantity] # bid prices get smaller for greater i
+      else:
+        next_row += [np.NAN, np.NAN]
+    for i in range(depth):
+      if i < len(l2_data['asks']):
+        price, quantity = l2_data['asks'][i]
+        next_row += [price, quantity] # ask prices get greater for greater i
+      else:
+        next_row += [np.NAN, np.NAN] 
 
     df.loc[len(df.index)] = next_row
     
