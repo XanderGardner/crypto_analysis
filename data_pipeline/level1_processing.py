@@ -13,7 +13,7 @@ def process_eth_level1():
   # 'Daily Transactions', 'Twitter Followers', 'Weekly Commits Core',
   # 'Weekly Commits Sub', 'Weekly Devs Core', 'Weekly Devs Sub',
   # 'Total Value Locked', 'Price Bitcoin'
-  df = pd.read_csv("../raw_data/eth_level1_raw_data.csv")
+  df = pd.read_csv("raw_data/eth_level1_raw_data.csv")
 
   # add momentum columns for each daily raw data column
   daily_raw_data_columns = ['Price','Market Cap','Volume','Active Addresses','Daily Transactions','Twitter Followers','Total Value Locked','Price Bitcoin']
@@ -35,7 +35,7 @@ def process_eth_level1():
   df = add_percent_change(df, "Price", -7)
 
   # output to csv
-  df.to_csv("../processed_data/eth_level1_processed_data.csv")
+  df.to_csv("processed_data/eth_level1_processed_data.csv")
 
 def main():
   process_eth_level1()

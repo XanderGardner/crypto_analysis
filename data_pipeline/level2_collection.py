@@ -8,7 +8,7 @@ def main():
   # global vars
   depth = 5000 # number of bids and asks to inspect (5000 at most)
   friction_percents = [0.25, 0.50, 0.75, 1.0, 1.25, 1.50, 1.75, 2.0] # each item is a friction calculation
-  cryptos = ["btc", "eth", "doge"]
+  cryptos = ["btc", "eth", "doge"] # cryptos to collect data on
 
   # client configuration - keys not needed here since using free api
   api_key = "API HERE"
