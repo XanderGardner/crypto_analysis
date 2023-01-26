@@ -16,7 +16,7 @@ def main():
   client = Client(api_key, api_secret, tld="us")
 
   # build on past csv
-  file = "raw_data/btc_level2_raw_data.csv"
+  file = "raw_data/level2_raw_data.csv"
   try:
     df = pd.read_csv(file, index_col=0)
   except FileNotFoundError:
